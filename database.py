@@ -10,33 +10,37 @@ class InputDatabase:
             password=password,
         )
         self.cursor = self.db.cursor()
-
-        query = "DROP DATABASE IF EXISTS bazka"
-        self.cursor.execute(query)
-
-        query = "CREATE DATABASE bazka"
-        self.cursor.execute(query)
-
-        query = 'USE bazka'
-        self.cursor.execute(query)
-
-        query = """CREATE TABLE ok(id INT(6), firstname VARCHAR(30) NOT NULL, lastname VARCHAR(30) NOT NULL, email VARCHAR(50)) """
-        self.cursor.execute(query)
-
-        query = "INSERT INTO ok(id, firstname, lastname, email) VALUES (1, 'HEJKA', 'sdfxf', 'ok')"
-        self.cursor.execute(query)
-
-        query = "SELECT firstname FROM ok WHERE id=1"
-        self.cursor.execute(query)
-        row = self.cursor.fetchone()
-        print(row[0])
-
-        query = "SELECT * FROM ok"
-        self.cursor.execute(query)
-        row = self.cursor.fetchone()
-        print(row)
-
+        self.create_db_if_not_exist()
+        self.fill_tables()
         self.db.commit()
+
+        #query = "DROP DATABASE IF EXISTS bazka"
+        #self.cursor.execute(query)
+
+        #query = "CREATE DATABASE bazka"
+        #self.cursor.execute(query)
+
+        #query = 'USE bazka'
+        #self.cursor.execute(query)
+
+        #query = """CREATE TABLE ok(id INT(6), firstname VARCHAR(30) NOT NULL, lastname VARCHAR(30) NOT NULL,
+        #email VARCHAR(50)) """
+        #self.cursor.execute(query)
+
+        #query = "INSERT INTO ok(id, firstname, lastname, email) VALUES (1, 'HEJKA', 'sdfxf', 'ok')"
+        #self.cursor.execute(query)
+
+        #query = "SELECT firstname FROM ok WHERE id=1"
+        #self.cursor.execute(query)
+        #row = self.cursor.fetchone()
+        #print(row[0])
+
+        #query = "SELECT * FROM ok"
+        #self.cursor.execute(query)
+        #row = self.cursor.fetchone()
+        #print(row)
+
+        #self.db.commit()
 
         #self.create_db_if_not_exist()
 
@@ -55,7 +59,9 @@ class InputDatabase:
         self.create_users_table()
 
     def create_all_alarms_table(self):
-        query = "CREATE TABLE IF NOT EXISTS alarms();" #tu dopisać co jest w tabeli
+        query = "CREATE TABLE IF NOT EXISTS alarms(id INTEGER(6), alert_name TEXT, alert_type TEXT, alert_range_TEXT," \
+                " date DATA_FIELD, time TIME_FIELD, supervisor_name TEXT);" #tu dopisać co jest w tabeli
+        #supervisor_name to trzy pierwsze litery imienia i nazwiska np Marta Stiebler -> MARSTI
         self.cursor.execute(query)
 
     def create_alarm_types_table(self):
@@ -70,7 +76,7 @@ class InputDatabase:
         - odpadnięcie jakiegoś urządzenia
         - przepalenie się żarówki alarmowej
         """
-        query = "CREATE TABLE IF NOT EXISTS alarm_types();"
+        query = "CREATE TABLE IF NOT EXISTS alarm_types(id_type TEXT, type TEXT );"
         self.cursor.execute(query)
 
     def create_alarms_priority_table(self):
@@ -87,5 +93,5 @@ class InputDatabase:
         query = "Create TABLE IF NOT EXISTS users"
         self.cursor.execute(query)
 
-    def enable_port_3306(self):
+    def fill_tables(self):
         pass

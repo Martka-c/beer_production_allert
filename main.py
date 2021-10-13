@@ -1,6 +1,7 @@
 from database import InputDatabase
 
 
-if name == 'main':
+if __name__ == '__main__':
     db = InputDatabase("root", "")
-    print("Sensowna zmiana")
+
+
