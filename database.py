@@ -10,7 +10,7 @@ class InputDatabase:
             password=password,
         )
         self.cursor = self.db.cursor()
-        self.create_db_if_not_exist()
+        self.start_creating_dbs_if_not_exist()
         self.fill_tables()
         self.db.commit()
 
@@ -44,12 +44,13 @@ class InputDatabase:
 
         #self.create_db_if_not_exist()
 
-    def create_dbs_if_not_exist(self):
+    def start_creating_dbs_if_not_exist(self):
         self.create_db_if_not_exist()
+        self.select_db()
         self.create_tables()
 
     def create_db_if_not_exist(self):
-        query = "CREATE DATABASE IF NOT EXISTS alarms;"
+        query = "CREATE DATABASE IF NOT EXISTS main_database;"
         self.cursor.execute(query)
 
     def create_tables(self):
@@ -59,9 +60,7 @@ class InputDatabase:
         self.create_users_table()
 
     def create_all_alarms_table(self):
-        query = "CREATE TABLE IF NOT EXISTS alarms(id INTEGER(6), alert_name TEXT, alert_type TEXT, alert_range_TEXT," \
-                " date DATA_FIELD, time TIME_FIELD, supervisor_name TEXT);" #tu dopisać co jest w tabeli
-        #supervisor_name to trzy pierwsze litery imienia i nazwiska np Marta Stiebler -> MARSTI
+        query = "CREATE TABLE IF NOT EXISTS alarms(id INTEGER(6), alert_name TEXT, alert_type TEXT, alert_range_TEXT, time TIMESTAMP, supervisor_name TEXT);"
         self.cursor.execute(query)
 
     def create_alarm_types_table(self):
@@ -86,12 +85,20 @@ class InputDatabase:
         - alarm o zagrożeniu
         - alarm ostrzegawczy
         """
-        query = "CREATE TABLE IF NOT EXISTS priority_table"
+        query = "CREATE TABLE IF NOT EXISTS priority_table(id_priority, priority TEXT)"
         self.cursor.execute(query)
 
     def create_users_table(self):
-        query = "Create TABLE IF NOT EXISTS users"
+        """
+        Creates table that contains registered users
+        """
+        query = "Create TABLE IF NOT EXISTS users(login TEXT, password TEXT)"
         self.cursor.execute(query)
 
     def fill_tables(self):
-        pass
+        query = "INSERT INTO priority_table(id_priority, priority) VALUES (1, 'Normal'), (2,'Urgent'), (3, 'Critical')"
+        self.cursor.execute(query)
+
+    def select_db(self):
+        query = "USE main_database"
+        self.cursor.execute(query)
