@@ -11,15 +11,21 @@ class InputDatabase:
             user=login,
             password=password,
         )
-        self.cursor = self.db.cursor()
+        self.cursor = self.db.cursor(buffered=True)
+
+    def drop_db(self):
+        query = "DROP DATABASE main_database"
+        self.cursor.execute(query)
+
+    def start(self):
         self.start_creating_dbs_if_not_exist()
-        self.fill_tables()
+        self.fill_priority_table_if_not_filled()
 
     def start_creating_dbs_if_not_exist(self):
         self.create_db_if_not_exist()
         self.select_db()
+        self.drop_constant_tables()
         self.create_tables()
-        self.db.commit()
 
     def create_db_if_not_exist(self):
         try:
@@ -36,7 +42,7 @@ class InputDatabase:
 
     def create_all_alarms_table(self):
         try:
-            query = """CREATE TABLE IF NOT EXISTS alarms(id INTEGER(6), alert_name TEXT, alert_type TEXT, alert_range 
+            query = """CREATE TABLE IF NOT EXISTS alarms(id INTEGER(6), alert_type TEXT, alert_range 
             TEXT, time DATETIME, supervisor_name TEXT);"""
             self.cursor.execute(query)
         except sqlite3.OperationalError as ex:
@@ -59,6 +65,38 @@ class InputDatabase:
             self.cursor.execute(query)
         except sqlite3.OperationalError as ex:
             raise RuntimeError(f"Error during creating alarms_type table: {ex}")
+
+    def fill_alarm_types_table_if_not_filled(self):
+        """
+        Method checks if alarm types table contains any rows and if not - fill it.
+        :return: Doesn't return anything
+        """
+#        if self.check_if_table_is_empty("alarm_types"):
+        self.fill_alarm_types_table()
+
+    def fill_alarm_types_table(self):
+        try:
+            query = """INSERT INTO alarm_types(id_type, type) VALUES (1, 'Brak jęczmienia w maszynie do zacierania'), (2,'Usterka w młynie'),
+             (3, 'Usterka miksera do zacieru'), 
+             (4, 'Brak cieczy w kadzi do gotowania'), 
+             (5, 'Zbyt wysoka temperatura w zbiorniku do gotowania'), 
+             (6, 'Pęknięta kadź do gotowania'), 
+             (7, 'Uszkodzona uszczelka w chłodnicy (uszkodzona chłodnica)'),
+             (8, 'Nieszczelny zamknięty fermentator stożkowy'),
+             (9, 'W fermentatorze stożkowym znajduje się ciecz o zbyt wysokiej temperaturze (usterka chłodnicy)'),
+             (10, 'Uszkodzony zbiornik pośredni'),
+             (11, 'Pęknięta baryłka'),
+             (12, 'Uszkodzony filtr do oczyszczania piwa'),
+             (13, 'Zatkany filtr do oczyszczania piwa'),
+             (14, 'Pęknięty zbiornik oczyszczonego piwa'),
+             (15, 'Usterka pasteryzatora'),
+             (16, 'Zbyt wysoka temperatura podczas pasteryzacji'),
+             (17, 'Usterka maszyny pakującej'),
+             (18, 'Elementy szkła na taśmie produkcyjnej'),
+             """
+            self.cursor.execute(query)
+        except sqlite3.OperationalError as ex:
+            raise RuntimeError(f"Error during filling alarm types table: {ex}")
 
     def create_alarms_priority_table(self):
         """
@@ -83,11 +121,14 @@ class InputDatabase:
         except sqlite3.OperationalError as ex:
             raise RuntimeError(f"Error during creating table users: {ex}")
 
-    def fill_tables(self):
+    def fill_priority_table_if_not_filled(self):
+        self.fill_priority_table()
+
+    def fill_priority_table(self):
         try:
-            query = "INSERT INTO priority_table(id_priority, priority) VALUES (1, 'Normal'), (2,'Urgent'), " \
-                    "(3, 'Critical')"
+            query = "INSERT INTO priority_table(id_priority, priority) VALUES (1, 'Normal'), (2,'Urgent'), (3, 'Critical')"
             self.cursor.execute(query)
+            self.db.commit()
         except sqlite3.OperationalError as ex:
             raise RuntimeError(f"Error during filling priority_table: {ex}")
 
@@ -97,3 +138,19 @@ class InputDatabase:
             self.cursor.execute(query)
         except sqlite3.OperationalError as ex:
             raise RuntimeError(f"Error: cannot use main_database\n{ex}")
+
+    def test_db(self):
+        query = "SELECT * FROM priority_table"
+        rows = self.cursor.execute(query).fetchall()
+        print([row[0] for row in rows])
+
+    def drop_constant_tables(self):
+        query = "DROP TABLE priority_table"
+        self.cursor.execute(query)
+        self.db.commit()
+
+
+if __name__ == '__main__':
+    db = InputDatabase("root", "")
+    db.start()
+    #db.drop_db()

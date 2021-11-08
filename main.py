@@ -1,5 +1,7 @@
-from database import InputDatabase
+import database
 
 
 if __name__ == '__main__':
-    db = InputDatabase("root", "")
+    db = database.InputDatabase("root", "")
+    db.drop_db()
+    #db.start()
