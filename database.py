@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import sqlite3
 
 import mysql.connector
@@ -39,8 +39,8 @@ class InputDatabase:
 
     def create_all_alarms_table(self):
         try:
-            query = """CREATE TABLE IF NOT EXISTS alarms(id INTEGER(6), alert_type TEXT, alert_range 
-            TEXT, time DATETIME, supervisor_name TEXT);"""
+            query = """CREATE TABLE IF NOT EXISTS alarms(id int NOT NULL AUTO_INCREMENT, alert_type TEXT, alert_range 
+            TEXT, time DATETIME, supervisor_name TEXT, PRIMARY KEY (id));"""
             self.cursor.execute(query)
         except sqlite3.OperationalError as ex:
             raise RuntimeError(f"Error during creating alarms table: {ex}")
@@ -64,11 +64,22 @@ class InputDatabase:
 
     def raise_allert(self, allert_content: str, user: str):
         try:
+            now = datetime.now()
+            date_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            print(date_time)
             # datatime field format YYYY-MM-DD hh:mm:ss
-            query = f"INSERT INTO alarms(id, alert_type, alert_range, time, supervisor_name) " \
-                    f"VALUES (1, '{allert_content}', 'ok', '2021-11-18 23:37:00', {user})"
+            query = f"INSERT INTO alarms(alert_type, alert_range, time, supervisor_name) " \
+                    f"VALUES ('{allert_content}', '{RANGES[MESSAGES[allert_content]]}', '{date_time}', '{user}')"
             self.cursor.execute(query)
             self.db.commit()
+        except sqlite3.OperationalError as ex:
+            raise RuntimeError(ex)
+
+    def check_user(self, userek: str, passwordek: str):
+        try:
+            self.cursor.execute(f"SELECT password FROM users WHERE login='{userek}'")
+            row = self.cursor.fetchone()
+            return True if row and row[0] == passwordek else False
         except sqlite3.OperationalError as ex:
             raise RuntimeError(ex)
 

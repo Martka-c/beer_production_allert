@@ -3,6 +3,8 @@ import tkinter
 from tkinter import *
 
 # Create object
+from tkinter import ttk
+
 import database
 from dictionary import USTERKI
 
@@ -10,13 +12,19 @@ from dictionary import USTERKI
 root = Tk()
 db = database.InputDatabase("root", "")
 user = "default"
-def raise_allert(incorrection_name: str, button_id: int = None):
-	if button_id not in [5, 9, 16]:
-		db.raise_allert(incorrection_name, user)
-	else:
-		db.raise_allert(USTERKI[button_id], user)
+# Adjust size
+root.geometry("1200x800")
 
+# Add image file
+bg = PhotoImage(file=r"C:\Users\marta\Desktop\pivvo.png")
 
+# Create Canvas
+canvas1 = Canvas(root, width=1200, height=800)
+
+canvas1.pack(fill="both", expand=True)
+
+# Display image
+canvas1.create_image(0, 0, image=bg, anchor="nw")
 def check_temperature_pasteryzator():
 	if temperatura_pasteryzator.get():
 		if int(temperatura_pasteryzator.get()) > 50:
@@ -40,21 +48,6 @@ def check_temperature_kadz():
 		elif int(temperatura_zbiornik_gotowania.get()) < 10:
 			raise_allert("Zbyt niska temperatura w zbiorniku do gotowania")
 
-
-# Adjust size
-root.geometry("1200x800")
-
-# Add image file
-bg = PhotoImage(file=r"C:\Users\marta\Desktop\pivvo.png")
-
-# Create Canvas
-canvas1 = Canvas(root, width=1200, height=800)
-
-canvas1.pack(fill="both", expand=True)
-
-# Display image
-canvas1.create_image(0, 0, image=bg, anchor="nw")
-
 # Create Buttons
 button1 = Button(root, text=USTERKI[1], command=lambda: raise_allert(USTERKI[1], 1))
 button2 = Button(root, text=USTERKI[2], command=lambda: raise_allert(USTERKI[2], 1))
@@ -75,7 +68,6 @@ button16 = Button(root, text=USTERKI[16], command=check_temperature_pasteryzator
 button17 = Button(root, text=USTERKI[17], command=lambda: raise_allert(USTERKI[17], 1))
 button18 = Button(root, text=USTERKI[18], command=lambda: raise_allert(USTERKI[18], 1))
 
-# Display Buttons
 button1_canvas = canvas1.create_window(10, 10, anchor="nw", window=button1) # brak jęczmienia
 button2_canvas = canvas1.create_window(120, 40, anchor="nw", window=button2) # usterka maszyny do zacieru
 button3_canvas = canvas1.create_window(300, 40, anchor="nw", window=button3) # usterka w młynie
@@ -95,6 +87,72 @@ button16_canvas = canvas1.create_window(480, 660, anchor="nw", window=button16)
 button17_canvas = canvas1.create_window(250, 720, anchor="nw", window=button17)
 button18_canvas = canvas1.create_window(410, 720, anchor="nw", window=button18)
 
+def disable_all_buttons():
+	button1["state"] = "disable"
+	button2["state"] = "disable"
+	button3["state"] = "disable"
+	button4["state"] = "disable"
+	button5["state"] = "disable"
+	button6["state"] = "disable"
+	button7["state"] = "disable"
+	button8["state"] = "disable"
+	button9["state"] = "disable"
+	button10["state"] = "disable"
+	button11["state"] = "disable"
+	button12["state"] = "disable"
+	button13["state"] = "disable"
+	button14["state"] = "disable"
+	button15["state"] = "disable"
+	button16["state"] = "disable"
+	button17["state"] = "disable"
+	button18["state"] = "disable"
+
+
+def enable_all_buttons():
+	button1["state"] = NORMAL
+	button2["state"] = "normal"
+	button3["state"] = "normal"
+	button4["state"] = "normal"
+	button5["state"] = "normal"
+	button6["state"] = "normal"
+	button7["state"] = "normal"
+	button8["state"] = "normal"
+	button9["state"] = "normal"
+	button10["state"] = "normal"
+	button11["state"] = "normal"
+	button12["state"] = "normal"
+	button13["state"] = "normal"
+	button14["state"] = "normal"
+	button15["state"] = "normal"
+	button16["state"] = "normal"
+	button17["state"] = "normal"
+	button18["state"] = "normal"
+
+disable_all_buttons()
+
+
+def sprawdz_logowanie():
+	if db.check_user(userek=login.get(), passwordek=haslo.get()):
+		enable_all_buttons()
+		war_var.set("Zalogowano")
+	else:
+		war_var.set("Nieudane logowanie")
+
+
+def raise_allert(incorrection_name: str, button_id: int = None):
+	if button_id not in [5, 9, 16]:
+		db.raise_allert(incorrection_name, user)
+	else:
+		db.raise_allert(USTERKI[button_id], user)
+
+
+
+
+
+
+# Display Buttons
+
+
 temperatura_pasteryzator = tkinter.Entry(root, state="normal")
 temp1_canvas = canvas1.create_window(480, 640, anchor="nw", window=temperatura_pasteryzator)
 
@@ -104,6 +162,28 @@ temp2_canvas = canvas1.create_window(500, 280, anchor="nw", window=temperatura_z
 temperatura_w_fermentatorze = tkinter.Entry(root, state="normal") #temperatura w fermentatorze
 temp3_canvas = canvas1.create_window(10, 500, anchor="nw", window=temperatura_w_fermentatorze)
 
+login = tkinter.Entry(root, state="normal")
+haslo = tkinter.Entry(root, state="normal")
+login_canvas = canvas1.create_window(800, 20, anchor="nw", window=login)
+haslo_canvas = canvas1.create_window(950, 20, anchor="nw", window=haslo)
 
+label_var = tkinter.StringVar()
+label_var.set("Login")
+login_label = ttk.Label(root, textvariable=label_var)
+
+haslo_var = tkinter.StringVar()
+haslo_var.set("Hasło")
+haslo_label = ttk.Label(root, textvariable=haslo_var)
+
+
+war_var = tkinter.StringVar()
+war_var.set("")
+warning_label = ttk.Label(root, textvariable=war_var)
+
+login_label_canvas = canvas1.create_window(800, 40, anchor="nw", window=login_label)
+haslo_label_canvas = canvas1.create_window(950, 40, anchor="nw", window=haslo_label)
+warning_label_canvas = canvas1.create_window(800, 60, anchor="nw", window=warning_label)
+LOGUJ_BTN = Button(root, text="ROZPOCZNIJ PRACĘ", command=sprawdz_logowanie)
+loguj_btn_cnv = canvas1.create_window(950, 70, anchor="nw", window=LOGUJ_BTN)
 # Execute tkinter
 root.mainloop()
