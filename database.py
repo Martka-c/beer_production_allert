@@ -66,8 +66,7 @@ class InputDatabase:
         try:
             now = datetime.now()
             date_time = now.strftime("%Y-%m-%d %H:%M:%S")
-            print(date_time)
-            # datatime field format YYYY-MM-DD hh:mm:ss
+
             query = f"INSERT INTO alarms(alert_type, alert_range, time, supervisor_name) " \
                     f"VALUES ('{allert_content}', '{RANGES[MESSAGES[allert_content]]}', '{date_time}', '{user}')"
             self.cursor.execute(query)
@@ -96,14 +95,8 @@ class InputDatabase:
 
         query = "SELECT * FROM alarms A"
 
-        #ustawianie czasu
-        # 1 - dzisiaj
-        # 2 - ostatni tydzień
-        # 3 - ostatni miesiąc
-        # 4 - ostatnie x dni
-
         if time_range == 1:
-            query += " WHERE time > DATE_SUB(CURDATE(), INTERVAL 1 DAY)'"
+            query += " WHERE time > DATE_SUB(CURDATE(), INTERVAL 1 DAY)"
         elif time_range == 2:
             query += " WHERE time > DATE_SUB(CURDATE(), INTERVAL 7 DAY)"
         elif time_range == 3:

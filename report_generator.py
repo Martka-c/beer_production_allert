@@ -1,4 +1,5 @@
 """Module services excel files, generates report dependent on set parameters"""
+from datetime import datetime
 import sqlite3
 from pythonlangutil.overload import Overload, signature
 
@@ -37,7 +38,9 @@ class ReportGenerator:
 	def generate(self, id, types, ranges, time, supervisor_names):
 		df =pd.DataFrame({'Id': id, 'Rodzaj alarmu': types, "Priorytet": ranges,
 						  "Czas zdarzenia": time, "Kierownik": supervisor_names})
-		writer = pd.ExcelWriter('test.xlsx', engine='xlsxwriter')
+		now = datetime.now()
+		date_time = now.strftime("%Y-%m-%d_%H-%M-%S")
+		writer = pd.ExcelWriter(f'report_{date_time}.xlsx', engine='xlsxwriter')
 		df.to_excel(writer, sheet_name="Alarmy1", index=False)
 		worksheet = writer.sheets['Alarmy1']
 		worksheet.conditional_format('B2:B100', {'type': '2_color_scale'})
