@@ -83,5 +83,46 @@ class InputDatabase:
         except sqlite3.OperationalError as ex:
             raise RuntimeError(ex)
 
-if __name__ == '__main__':
-    db = InputDatabase("root", "")
+    def get_all_from_db(self):
+        try:
+            query = "SELECT * FROM alarms"
+            self.cursor.execute(query)
+            rows = self.cursor.fetchall()
+            return [row for row in rows]
+        except sqlite3.OperationalError as ex:
+            raise RuntimeError(ex)
+
+    def prepare_query(self, time_range, supervisor, priority, days: int = None):
+
+        query = "SELECT * FROM alarms A"
+
+        #ustawianie czasu
+        # 1 - dzisiaj
+        # 2 - ostatni tydzień
+        # 3 - ostatni miesiąc
+        # 4 - ostatnie x dni
+
+        if time_range == 1:
+            query += " WHERE time > DATE_SUB(CURDATE(), INTERVAL 1 DAY)'"
+        elif time_range == 2:
+            query += " WHERE time > DATE_SUB(CURDATE(), INTERVAL 7 DAY)"
+        elif time_range == 3:
+            query += " WHERE time > DATE_SUB(CURDATE(), INTERVAL 30 DAY)"
+        else:
+            query += f" WHERE time > DATE_SUB(CURDATE(), INTERVAL {days} DAY)"
+
+        if supervisor:
+            query += f" AND  supervisor_name = '{supervisor}'"
+        if priority:
+            query += f" AND alert_range = '{priority}'"
+
+        return query
+
+    def get_users_list(self):
+        try:
+            query = "SELECT login FROM users"
+            self.cursor.execute(query)
+            rows = self.cursor.fetchall()
+            return [row[0] for row in rows]
+        except sqlite3.OperationalError as ex:
+            raise RuntimeError(ex)

@@ -66,3 +66,10 @@ RANGES = {
 	20: "Critical",
 	21: "Critical",
 }
+
+TIME = {
+	"1 dzień": 1,
+	"1 tydzień": 2,
+	"1 miesiąc": 3,
+	"Ręczne ustawienia": 4
+}

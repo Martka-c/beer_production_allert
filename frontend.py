@@ -1,16 +1,17 @@
 # Import module
 import tkinter
 from tkinter import *
-
 # Create object
 from tkinter import ttk
 
 import database
-from dictionary import USTERKI
-
+from dictionary import USTERKI, TIME
+from report_generator import ReportGenerator
 
 root = Tk()
 db = database.InputDatabase("root", "")
+report_service = ReportGenerator()
+
 user = "default"
 # Adjust size
 root.geometry("1200x800")
@@ -25,6 +26,13 @@ canvas1.pack(fill="both", expand=True)
 
 # Display image
 canvas1.create_image(0, 0, image=bg, anchor="nw")
+
+
+def generuj_raport():
+	print(TIME[z_jak_dawna_raport.get()])
+	report_service.start(db=db, cursor=db.cursor, days=dni_rp.get(), supervisor=czyje_alarmy.get(),
+						 time=TIME[z_jak_dawna_raport.get()], level=priorytet_raport.get())
+
 def check_temperature_pasteryzator():
 	if temperatura_pasteryzator.get():
 		if int(temperatura_pasteryzator.get()) > 50:
@@ -135,6 +143,8 @@ def sprawdz_logowanie():
 	if db.check_user(userek=login.get(), passwordek=haslo.get()):
 		enable_all_buttons()
 		war_var.set("Zalogowano")
+		global user
+		user = login.get()
 	else:
 		war_var.set("Nieudane logowanie")
 
@@ -144,13 +154,6 @@ def raise_allert(incorrection_name: str, button_id: int = None):
 		db.raise_allert(incorrection_name, user)
 	else:
 		db.raise_allert(USTERKI[button_id], user)
-
-
-
-
-
-
-# Display Buttons
 
 
 temperatura_pasteryzator = tkinter.Entry(root, state="normal")
@@ -180,10 +183,40 @@ war_var = tkinter.StringVar()
 war_var.set("")
 warning_label = ttk.Label(root, textvariable=war_var)
 
+
+dni_do_raportu = tkinter.StringVar()
+dni_do_raportu.set("Raport z poprzednich X dni")
+dni_label = ttk.Label(root, textvariable=dni_do_raportu)
+
 login_label_canvas = canvas1.create_window(800, 40, anchor="nw", window=login_label)
 haslo_label_canvas = canvas1.create_window(950, 40, anchor="nw", window=haslo_label)
 warning_label_canvas = canvas1.create_window(800, 60, anchor="nw", window=warning_label)
+dni_do_raportu_cansas = canvas1.create_window(990, 330, anchor="nw", window=dni_label)
+
+
+dni_rp = tkinter.Entry(root, state="normal")
+dni_rp_canvas = canvas1.create_window(1000, 350, anchor="nw", window=dni_rp)
+
+z_jak_dawna_raport = ttk.Combobox(root, state="normal")
+z_jak_dawna_raport["values"] = ("1 dzień", "1 tydzień", "1 miesiąc", "Ręczne ustawienia")
+czas_raport_cnv = canvas1.create_window(800, 350, anchor="nw", window=z_jak_dawna_raport)
+
+czyje_alarmy = ttk.Combobox(root, state="normal")
+users = db.get_users_list()
+czyje_alarmy["values"] = users
+czyje_alarmy_raport_cnv = canvas1.create_window(800, 380, anchor="nw", window=czyje_alarmy)
+
+priorytet_raport = ttk.Combobox(root, state="normal")
+priorytet_raport["values"] = ("Normal", "Urgent", "Critical")
+priorytet_raport_cnv = canvas1.create_window(800, 410, anchor="nw", window=priorytet_raport)
+
 LOGUJ_BTN = Button(root, text="ROZPOCZNIJ PRACĘ", command=sprawdz_logowanie)
 loguj_btn_cnv = canvas1.create_window(950, 70, anchor="nw", window=LOGUJ_BTN)
-# Execute tkinter
+
+CREATE_REPORT_BUTTON = Button(root, text="Wygeneruj raport", command=generuj_raport)
+report_btn_cnv = canvas1.create_window(950, 400, anchor="nw", window=CREATE_REPORT_BUTTON)
+
+
+
+
 root.mainloop()
