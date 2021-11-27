@@ -156,7 +156,9 @@ def sprawdz_logowanie():
 
 
 def raise_allert(incorrection_name: str, button_id: int = None):
-	if button_id:
+	global user
+	print(user)
+	if not button_id:
 		db.raise_allert(incorrection_name, user)
 	else:
 		db.raise_allert(USTERKI[button_id], user)

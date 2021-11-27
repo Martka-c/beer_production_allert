@@ -16,10 +16,16 @@ class InputDatabase:
         )
         self.cursor = self.db.cursor(buffered=True)
         self.start_creating_dbs_if_not_exist()
+        self.create_default_user()
 
     def drop_db(self):
         query = "DROP DATABASE main_database"
         self.cursor.execute(query)
+
+    def create_default_user(self):
+        query = "INSERT INTO users(login, password) VALUES ('login', 'haslo'), ('default', 'default')"
+        self.cursor.execute(query)
+        self.db.commit()
 
     def start_creating_dbs_if_not_exist(self):
         self.create_db_if_not_exist()
@@ -113,7 +119,7 @@ class InputDatabase:
 
     def get_users_list(self):
         try:
-            query = "SELECT login FROM users"
+            query = "SELECT DISTINCT(login) FROM users"
             self.cursor.execute(query)
             rows = self.cursor.fetchall()
             return [row[0] for row in rows]
